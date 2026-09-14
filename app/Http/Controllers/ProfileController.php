@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
     public function update(Request $request)
     {
-        $user = auth()->user();
+        $user = User::find(auth()->id());
 
         /*
         |--------------------------------------------------------------------------
@@ -41,15 +42,16 @@ class ProfileController extends Controller
         |--------------------------------------------------------------------------
         */
         if ($request->hasFile('avatar')) {
-
-            // Hapus avatar lama jika ada
-            if ($user->avatar_url) {
-                Storage::delete('public/avatars/' . $user->avatar_url);
+            // Hapus avatar lama menggunakan disk public secara eksplisit
+            if ($user->avatar_url && Storage::disk('public')->exists('avatars/' . $user->avatar_url)) {
+                Storage::disk('public')->delete('avatars/' . $user->avatar_url);
             }
 
             $file = $request->file('avatar');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/avatars', $filename);
+            
+            // Simpan ke disk public (storage/app/public/avatars)
+            $file->storeAs('avatars', $filename, 'public');
 
             // Simpan ke kolom database avatar_url
             $user->avatar_url = $filename;
@@ -67,7 +69,7 @@ class ProfileController extends Controller
     */
     public function updatePassword(Request $request)
     {
-        $user = auth()->user();
+        $user = User::find(auth()->id());
 
         $request->validate([
             'current_password' => ['required'],
