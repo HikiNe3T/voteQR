@@ -266,13 +266,11 @@ class EventController extends Controller
                         'has_voted' => 0
                     ]);
 
-                    // EMAIL
+
                     if (!empty($data['email'])) {
                         Mail::to($data['email'])
-                            ->send(new SendAccessCode($data['code']));
+                            ->queue(new SendAccessCode($data['code']));
                     }
-
-                    // WA
                     if (!empty($data['phone'])) {
                         $this->sendWhatsApp(
                             $this->formatPhone($data['phone']),
