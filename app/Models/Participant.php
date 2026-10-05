@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class Participant extends Model
@@ -14,4 +13,9 @@ class Participant extends Model
         'access_code',
         'has_voted'
     ];
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
 }

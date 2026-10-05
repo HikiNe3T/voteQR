@@ -447,38 +447,44 @@ class EventController extends Controller
         return $pdf->download('lanyard-' . str()->slug($event->name) . '.pdf');
     }
 
-public function index()
-{
-    $userId = Auth::id();
+    public function index()
+    {
+        $userId = Auth::id();
 
-    // 1. Hitung Event Aktif milik user
-    $activeEventsCount = Event::where('creator_id', $userId)
-        ->where('status', 'active')
-        ->count();
+        // 1. Load event milik user beserta relasi participant untuk menghitung vote per event
+        $events = Event::where('creator_id', $userId)
+            ->withCount(['participants as voted_count' => function ($query) {
+                $query->where('has_voted', 1);
+            }])
+            ->latest()
+            ->get();
 
-    // 2. Hitung Total Peserta dari semua event milik user
-    $totalParticipantsCount = Participant::whereHas('event', function ($query) use ($userId) {
-        $query->where('creator_id', $userId);
-    })->count();
+        // 2. Total Event (semua event milik user)
+        $totalEventsCount = $events->count();
 
-    // 3. Hitung Total Vote Riil dari peserta yang sudah voting
-    $totalVotesCount = Participant::whereHas('event', function ($query) use ($userId) {
-        $query->where('creator_id', $userId);
-    })->where('has_voted', 1)->count();
+        // 3. Hitung Total Peserta dari semua event milik user
+        $totalParticipantsCount = Participant::whereHas('event', function ($query) use ($userId) {
+            $query->where('creator_id', $userId);
+        })->count();
 
-    // 4. Load event milik user beserta relasi participant untuk menghitung vote per event
-    $events = Event::where('creator_id', $userId)
-        ->withCount(['participants as voted_count' => function ($query) {
-            $query->where('has_voted', 1);
-        }])
-        ->latest()
-        ->get();
+        // 4. Hitung Total Vote Riil dari peserta yang sudah voting
+        $totalVotesCount = Participant::whereHas('event', function ($query) use ($userId) {
+            $query->where('creator_id', $userId);
+        })->where('has_voted', 1)->count();
 
-    return view('dashboard', compact(
-        'activeEventsCount',
-        'totalParticipantsCount',
-        'totalVotesCount',
-        'events'
-    ));
-}
+        // 5. Hitung jumlah event per status (pakai accessor $event->status)
+        $activeEventsCount   = $events->where('status', 'active')->count();
+        $upcomingEventsCount = $events->where('status', 'upcoming')->count();
+        $finishedEventsCount = $events->where('status', 'finished')->count();
+
+        return view('dashboard', compact(
+            'totalEventsCount',
+            'totalParticipantsCount',
+            'totalVotesCount',
+            'activeEventsCount',
+            'upcomingEventsCount',
+            'finishedEventsCount',
+            'events'
+        ));
+    }
 }

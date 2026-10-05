@@ -211,26 +211,29 @@
     /**
      * Pipeline Pengolahan Citra OpenCV (Grayscale -> Adaptive Threshold -> Canny Edge)
      */
-    function processFrameWithOpenCV(sourceCanvas) {
+function processFrameWithOpenCV(sourceCanvas) {
       let src = cv.imread(sourceCanvas);
       let gray = new cv.Mat();
+      let blurred = new cv.Mat(); // <-- Tambahan variabel untuk hasil blur
       let thresh = new cv.Mat();
       let edges = new cv.Mat();
 
       try {
-        // A. Convert ke Grayscale
+        // Step 1: Grayscale Conversion
         cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
 
-        // B. Adaptive Thresholding (mengatasi pencahayaan gelap/terang & bayangan)
-        cv.adaptiveThreshold(gray, thresh, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
+        // Step 2: Noise Reduction (Gaussian Blur untuk meredam bintik/derau)
+        cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
 
-        // Coba decode hasil Binarization
+        // Step 3: Adaptive Gaussian Thresholding (menggunakan hasil 'blurred' bukan 'gray')
+        cv.adaptiveThreshold(blurred, thresh, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
+
         let imageData = matToImageData(thresh);
         let code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
 
-        // C. Jika belum ketemu, terapkan Canny Edge Detection (Deteksi Kontur Tepi)
+        // Step 4: Canny Edge Detection (Fallback menggunakan 'blurred' atau 'gray')
         if (!code) {
-          cv.Canny(gray, edges, 100, 200, 3, false);
+          cv.Canny(blurred, edges, 100, 200, 3, false);
           imageData = matToImageData(edges);
           code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
         }
@@ -240,9 +243,10 @@
         console.error('OpenCV Processing Error:', err);
         return null;
       } finally {
-        // Bebaskan Memory WebAssembly OpenCV
+        // Jangan lupa masukkan blurred.delete() agar tidak memory leak!
         src.delete();
         gray.delete();
+        blurred.delete();
         thresh.delete();
         edges.delete();
       }

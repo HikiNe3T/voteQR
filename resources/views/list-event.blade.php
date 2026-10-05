@@ -7,6 +7,55 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <style>
+    /* Perbaikan layout list-item di layar sempit (HP) */
+    .event-card.list-item {
+      flex-wrap: wrap;
+    }
+
+    .event-card .list-item__meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-2, 8px);
+      row-gap: 4px;
+    }
+
+    .event-card .list-item__meta > span.badge {
+      margin-right: 0 !important;
+      white-space: nowrap;
+    }
+
+    .event-card .list-item__date {
+      white-space: nowrap;
+    }
+
+    @media (max-width: 480px) {
+      .event-card.list-item {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .event-card.list-item > a {
+        width: 100%;
+      }
+
+      .event-card.list-item > div:last-child {
+        width: 100%;
+      }
+
+      .event-card.list-item > div:last-child .btn,
+      .event-card.list-item > div:last-child a,
+      .event-card.list-item > div:last-child button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .event-card .list-item__meta {
+        gap: 6px;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -37,20 +86,20 @@
           <div class="list-item event-card flex items-center justify-between gap-3" data-status="{{ $event->status_label }}">
             
             <!-- Link untuk Masuk Kembali ke Event -->
-            <a href="{{ route('event.show', ['event_id' => $event->id]) }}" class="flex items-center gap-3 flex-1 style-none" style="text-decoration: none; color: inherit;">
-              <div class="list-item__icon" style="background: linear-gradient(135deg, var(--primary-100), var(--accent-100));">
+            <a href="{{ route('event.show', ['event_id' => $event->id]) }}" class="flex items-center gap-3 flex-1 style-none" style="text-decoration: none; color: inherit; min-width: 0;">
+              <div class="list-item__icon" style="background: linear-gradient(135deg, var(--primary-100), var(--accent-100)); flex-shrink: 0;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
               </div>
-              <div class="list-item__content">
+              <div class="list-item__content" style="min-width: 0;">
                 <div class="list-item__title">{{ $event->name }}</div>
                 <div class="list-item__meta">
-                  <span class="badge {{ $event->status_class }}" style="margin-right: var(--space-2);">
+                  <span class="badge {{ $event->status_class }}">
                     {{ $event->status_label }}
                   </span>
-                  {{ $event->formatted_date }}
+                  <span class="list-item__date">{{ $event->formatted_date }}</span>
                 </div>
               </div>
             </a>

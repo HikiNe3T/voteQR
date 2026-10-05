@@ -215,9 +215,10 @@
     /**
      * Processing pipeline menggunakan OpenCV: Grayscale, Adaptive Threshold, & Canny Edge Detection
      */
-    function processFrameWithOpenCV(sourceCanvas) {
+function processFrameWithOpenCV(sourceCanvas) {
       let src = cv.imread(sourceCanvas);
       let gray = new cv.Mat();
+      let blurred = new cv.Mat(); 
       let thresh = new cv.Mat();
       let edges = new cv.Mat();
 
@@ -225,15 +226,18 @@
         // Step 1: Grayscale Conversion
         cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
 
-        // Step 2: Adaptive Gaussian Thresholding (mengatasi bayangan dan kilatan cahaya)
-        cv.adaptiveThreshold(gray, thresh, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
+        // Step 2: Noise Reduction (Gaussian Blur untuk meredam bintik/derau)
+        cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
+
+        // Step 3: Adaptive Gaussian Thresholding (menggunakan hasil 'blurred' bukan 'gray')
+        cv.adaptiveThreshold(blurred, thresh, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
 
         let imageData = matToImageData(thresh);
         let code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
 
-        // Step 3: Canny Edge Detection (Fallback jika thresholding masih belum cukup tebal)
+        // Step 4: Canny Edge Detection (Fallback menggunakan 'blurred' atau 'gray')
         if (!code) {
-          cv.Canny(gray, edges, 100, 200, 3, false);
+          cv.Canny(blurred, edges, 100, 200, 3, false);
           imageData = matToImageData(edges);
           code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
         }
@@ -243,9 +247,9 @@
         console.error('OpenCV Processing Error:', err);
         return null;
       } finally {
-        // Penting: Hapus pointer memori WebAssembly agar tidak memory leak
         src.delete();
         gray.delete();
+        blurred.delete();
         thresh.delete();
         edges.delete();
       }

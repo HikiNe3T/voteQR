@@ -15,14 +15,14 @@
   <main class="section page">
     <div class="container">
 
-      <div class="flex items-center gap-3 mb-6">
-        <a href="{{ route('dashboard') }}" class="btn btn--ghost btn--icon">
+      <div class="admin-event-header mb-6">
+        <a href="{{ route('dashboard') }}" class="btn btn--ghost btn--icon admin-event-header__back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
         </a>
-        <div class="flex-1">
-          <div class="flex items-center gap-2">
-            <h1 class="section-title" style="margin-bottom: 0;">Kelola Event</h1>
-            <span class="badge
+        <div class="flex-1 admin-event-header__info">
+          <div class="flex items-center gap-2 admin-event-header__title-row">
+            <h1 class="section-title admin-event-header__title" style="margin-bottom: 0;">Kelola Event</h1>
+            <span class="badge admin-event-header__badge
               @if($event->status == 'active') badge--success
               @elseif($event->status == 'upcoming') badge--warning
               @else badge--secondary
@@ -31,15 +31,15 @@
               {{ $event->status }}
             </span>
           </div>
-          <p class="section-subtitle" style="margin-bottom: 0;">{{ $event->name }}</p>
+          <p class="section-subtitle admin-event-header__subtitle" style="margin-bottom: 0;">{{ $event->name }}</p>
         </div>
       </div>
 
-      <div class="mb-6" style="border-radius: var(--radius-2xl); overflow: hidden; position: relative;">
-        <div style="width: 100%; height: 160px; background: linear-gradient(135deg, var(--primary-500), var(--accent-500)); display: flex; align-items: center; justify-content: center; color: white;">
+      <div class="admin-event-banner mb-6">
+        <div class="admin-event-banner__inner">
           <div class="text-center">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--space-2); opacity: 0.8;"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <h2 style="font-size: var(--font-size-xl); font-weight: 700;">{{ $event->name }}</h2>
+            <h2 class="admin-event-banner__title">{{ $event->name }}</h2>
           </div>
         </div>
       </div>
@@ -102,7 +102,9 @@
           </div>
         </div>
 
-              <!-- Modal: Peringatan Event Berlangsung / Selesai -->
+      </div>
+
+      <!-- Modal: Peringatan Event Berlangsung / Selesai -->
       <div class="modal-overlay" id="status-warning-modal">
         <div class="modal" style="max-width: 400px;">
           <div class="modal__body text-center" style="padding: var(--space-6) var(--space-4);">
@@ -120,8 +122,6 @@
             <button class="btn btn--primary" onclick="closeModal('status-warning-modal')">Mengerti</button>
           </div>
         </div>
-      </div>
-
       </div>
 
       <!-- Section 3: Daftar Kandidat -->
@@ -153,8 +153,8 @@
             </div>
           </div>
 
-        <a href="{{ route('candidate.edit', $candidate->id) }}" 
-          class="btn btn--ghost btn--icon" 
+        <a href="{{ route('candidate.edit', $candidate->id) }}"
+          class="btn btn--ghost btn--icon candidate-list-item__edit"
           onclick="return checkCandidateEdit(event)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           Edit
@@ -173,20 +173,28 @@
         </div>
       </div>
 
-      <div class="grid-3 mb-8">
-        <div class="stat-card">
-          <div class="stat-card__icon" style="background: linear-gradient(135deg, var(--primary-100), var(--accent-100)); color: var(--primary-600);">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      <div class="stats-grid mb-8">
+        <div class="card" style="border-left: 4px solid var(--primary-500);">
+          <div class="flex items-center gap-3">
+            <div class="stat-icon" style="background: var(--primary-100); color: var(--primary-600);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            </div>
+            <div>
+              <div class="stat-value">{{ $totalVote }}</div>
+              <div class="stat-label">Total Vote</div>
+            </div>
           </div>
-          <div class="stat-card__value">{{ $totalVote }}</div>
-          <div class="stat-card__label">Total Vote</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-card__icon" style="background: linear-gradient(135deg, var(--success-100), var(--primary-100)); color: var(--success-600);">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <div class="card" style="border-left: 4px solid var(--success-500);">
+          <div class="flex items-center gap-3">
+            <div class="stat-icon" style="background: var(--success-100); color: var(--success-600);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <div class="stat-value">{{ $event->participants->count() }}</div>
+              <div class="stat-label">Total Peserta</div>
+            </div>
           </div>
-          <div class="stat-card__value">{{ $event->participants->count() }}</div>
-          <div class="stat-card__label">Total Peserta</div>
         </div>
       </div>
 
@@ -264,14 +272,14 @@
           @endforeach
         </div>
       </div>
-      <div class="modal__footer">
+      <div class="modal__footer qr-candidate-footer">
         <button class="btn btn--secondary allow-finished" onclick="closeModal('qr-candidate-modal')">Tutup</button>
         <button class="btn btn--primary allow-finished" onclick="downloadAllQR()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download Semua
         </button>
         <button class="btn btn--secondary allow-finished" onclick="downloadPDF()">
-          Cetak Lanyard Kandidat
+          Cetak Lanyard
         </button>
       </div>
     </div>
@@ -319,11 +327,11 @@
           </div>
           <div class="input-group">
             <label for="edit-event-image">Foto Event</label>
-            <div style="display: flex; align-items: center; gap: var(--space-4);">
-              <div style="width: 80px; height: 80px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--primary-500), var(--accent-500)); display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; overflow: hidden;" id="edit-image-preview">
+            <div class="edit-image-row">
+              <div class="edit-image-row__preview" id="edit-image-preview">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               </div>
-              <div class="flex-1">
+              <div class="flex-1 edit-image-row__input">
                 <input type="file" id="edit-event-image" class="input" accept="image/*" onchange="previewEventPhoto(this)">
                 <span class="text-xs text-muted mt-1" style="display: block;">Format: JPG, PNG. Maks 2MB.</span>
               </div>
@@ -335,7 +343,7 @@
         <button class="btn btn--secondary" onclick="closeModal('edit-detail-modal')">Batal</button>
         <button class="btn btn--primary" onclick="saveEventDetail()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Simpan Perubahan
+          Simpan
         </button>
       </div>
     </div>
@@ -472,7 +480,7 @@ function handleDeleteAction() {
     showStatusWarning('Event Belum Dimulai', 'Event yang belum dimulai tidak dapat dihapus.');
     return;
   }
-  
+
   // Jika status sudah finished (selesai), izinkan membuka modal hapus
   openModal('delete-event-modal');
 }

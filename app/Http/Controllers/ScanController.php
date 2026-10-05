@@ -36,6 +36,10 @@ class ScanController extends Controller
             return back()->with('error', 'Event tidak ditemukan.');
         }
 
+        // Catat kunjungan langsung setelah event ditemukan,
+        // supaya event langsung muncul di riwayat meski user belum vote.
+        $this->rememberVisit($event->id);
+
         // Cek tipe voting
         if ($event->voting_type === 'private') {
             // Redirect ke halaman input kode akses
@@ -145,6 +149,10 @@ class ScanController extends Controller
         // Simpan participant_id di session untuk tracking
         session(['participant_id' => $participant->id, 'event_id' => $eventId]);
 
+        // Catat kunjungan juga di sini, supaya event private tetap tercatat
+        // walau user masuk lewat halaman kode akses.
+        $this->rememberVisit($eventId);
+
         return response()->json([
             'success' => true,
             'redirect' => route('event.show', ['event_id' => $eventId]),
@@ -218,6 +226,22 @@ class ScanController extends Controller
         ]);
     }
 
+    /* ===================== HELPER RIWAYAT / VISIT ===================== */
+
+    /**
+     * Catat event yang baru saja dikunjungi (di-scan) ke session,
+     * supaya langsung muncul di riwayat meski belum vote.
+     */
+    private function rememberVisit(string $eventId): void
+    {
+        $visited = session('visited_event_ids', []);
+
+        if (!in_array($eventId, $visited, true)) {
+            $visited[] = $eventId;
+            session(['visited_event_ids' => $visited]);
+        }
+    }
+
     /* ===================== SCAN KANDIDAT ===================== */
 
     private function voterIdentifier(string $eventId): string
@@ -276,6 +300,7 @@ class ScanController extends Controller
         }
 
         session(['event_id' => $eventId]);
+        $this->rememberVisit($eventId);
 
         $existing = DB::table('votes')
             ->where('event_id', $eventId)

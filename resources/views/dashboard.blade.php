@@ -7,6 +7,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <style>
+    .stat-filter {
+      transition: box-shadow 0.15s ease, transform 0.1s ease;
+    }
+    .stat-filter:hover {
+      transform: translateY(-2px);
+    }
+    .stat-filter--active {
+      box-shadow: 0 0 0 2px var(--primary-500);
+    }
+  </style>
 </head>
 <body>
 
@@ -19,44 +30,56 @@
       <div class="flex items-center justify-between mb-6">
         <div>
           <h1 class="section-title">Dashboard</h1>
-          <p class="section-subtitle">Kelola event voting Anda</p>
+          <p class="section-subtitle">Kelola event Anda</p>
         </div>
       </div>
 
       <!-- Stats Cards -->
-      <div class="grid-3 mb-8">
-        <div class="card" style="border-left: 4px solid var(--primary-500);">
+      <div class="stats-grid" id="statsFilterBar">
+        <!-- <div class="card stat-filter stat-filter--active" data-filter="all" onclick="filterEvents('all', this)" style="cursor:pointer; border-left: 4px solid var(--neutral-400);">
           <div class="flex items-center gap-3">
-            <div style="width: 40px; height: 40px; border-radius: var(--radius-lg); background: var(--primary-100); display: flex; align-items: center; justify-content: center; color: var(--primary-600);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div class="stat-icon" style="background: var(--neutral-100); color: var(--neutral-600);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
             <div>
-              <div style="font-size: var(--font-size-2xl); font-weight: 700;">{{ number_format($activeEventsCount ?? 0) }}</div>
-              <div class="text-sm text-muted">Event Aktif</div>
+              <div class="stat-value">{{ number_format($totalEventsCount ?? 0) }}</div>
+              <div class="stat-label">Semua Event</div>
             </div>
           </div>
-        </div>
-        
-        <div class="card" style="border-left: 4px solid var(--accent-500);">
+        </div> -->
+
+        <div class="card stat-filter" data-filter="active" onclick="filterEvents('active', this)" style="cursor:pointer; border-left: 4px solid var(--primary-500);">
           <div class="flex items-center gap-3">
-            <div style="width: 40px; height: 40px; border-radius: var(--radius-lg); background: var(--accent-100); display: flex; align-items: center; justify-content: center; color: var(--accent-600);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div class="stat-icon" style="background: var(--primary-100); color: var(--primary-600);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
             </div>
             <div>
-              <div style="font-size: var(--font-size-2xl); font-weight: 700;">{{ number_format($totalParticipantsCount ?? 0) }}</div>
-              <div class="text-sm text-muted">Total Peserta</div>
+              <div class="stat-value">{{ number_format($activeEventsCount ?? 0) }}</div>
+              <div class="stat-label">Sedang Berlangsung</div>
             </div>
           </div>
         </div>
 
-        <div class="card" style="border-left: 4px solid var(--success-500);">
+        <div class="card stat-filter" data-filter="upcoming" onclick="filterEvents('upcoming', this)" style="cursor:pointer; border-left: 4px solid var(--accent-500);">
           <div class="flex items-center gap-3">
-            <div style="width: 40px; height: 40px; border-radius: var(--radius-lg); background: var(--success-100); display: flex; align-items: center; justify-content: center; color: var(--success-600);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            <div class="stat-icon" style="background: var(--accent-100); color: var(--accent-600);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
             <div>
-              <div style="font-size: var(--font-size-2xl); font-weight: 700;">{{ number_format($totalVotesCount ?? 0) }}</div>
-              <div class="text-sm text-muted">Total Vote</div>
+              <div class="stat-value">{{ number_format($upcomingEventsCount ?? 0) }}</div>
+              <div class="stat-label">Akan Datang</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card stat-filter" data-filter="finished" onclick="filterEvents('finished', this)" style="cursor:pointer; border-left: 4px solid var(--success-500);">
+          <div class="flex items-center gap-3">
+            <div class="stat-icon" style="background: var(--success-100); color: var(--success-600);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="stat-value">{{ number_format($finishedEventsCount ?? 0) }}</div>
+              <div class="stat-label">Selesai</div>
             </div>
           </div>
         </div>
@@ -69,7 +92,7 @@
 
       <div class="grid-3 stagger-children">
         @forelse($events as $event)
-          <div class="event-card" onclick="window.location='{{ route('admin.event', $event->id) }}'" style="cursor:pointer;">
+          <div class="event-card" data-status="{{ $event->status }}" onclick="window.location='{{ route('admin.event', $event->id) }}'" style="cursor:pointer;">
             
             <div class="event-card__image">
               @if($event->image_url)
@@ -110,19 +133,14 @@
                   "> {{ $event->status }}
                 </span>
 
-                <!-- Menggunakan count riil hasil withCount atau relasi -->
-                <span class="badge badge--primary"> 
+                <!-- <span class="badge badge--primary"> 
                   Total Vote: {{ $event->voted_count ?? $event->participants->where('has_voted', 1)->count() }}
-                </span>
+                </span> -->
               </div>
 
-              <!-- Tombol Hasil TOPSIS (Hanya aktif jika status finished) -->
               <div class="mt-4 pt-3" style="border-top: 1px solid var(--neutral-200);" onclick="event.stopPropagation();">
                 @if($event->status === 'finished')
-                <a href="{{ route('event.topsis', ['event_id' => $event->id]) }}" class="btn btn--primary text-xs" style="width: 100%; text-align: center;">Lihat TOPSIS</a>
-                  {{-- <a href="{{ route('event.topsis', ['event_id' => $event->id]) }}" class="btn btn--primary text-xs" style="width: 100%; text-align: center;">
-                    🧮 Perhitungan TOPSIS
-                  </a> --}}
+                <!-- <a href="{{ route('event.topsis', ['event_id' => $event->id]) }}" class="btn btn--primary text-xs" style="width: 100%; text-align: center;">Lihat TOPSIS</a> -->
                 @else
                   <button class="btn text-xs" style="width: 100%; opacity: 0.6; cursor: not-allowed; background: var(--neutral-200); color: var(--neutral-600);" disabled title="Event harus selesai terlebih dahulu">
                     🔒 TOPSIS (Belum Selesai)
@@ -213,6 +231,41 @@
     }
 
     document.addEventListener('DOMContentLoaded', startCountdown);
+
+    function filterEvents(status, clickedCard) {
+      // toggle highlight card filter yang aktif
+      document.querySelectorAll('.stat-filter').forEach(el => {
+        el.classList.remove('stat-filter--active');
+      });
+      clickedCard.classList.add('stat-filter--active');
+
+      // tampilkan/sembunyikan event-card sesuai status
+      const cards = document.querySelectorAll('.event-card');
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const matches = (status === 'all' || card.dataset.status === status);
+        card.style.display = matches ? '' : 'none';
+        if (matches) visibleCount++;
+      });
+
+      // tampilkan pesan kalau kosong
+      let emptyMsg = document.getElementById('emptyFilterMsg');
+      const grid = document.querySelector('.grid-3');
+
+      if (visibleCount === 0) {
+        if (!emptyMsg) {
+          emptyMsg = document.createElement('p');
+          emptyMsg.id = 'emptyFilterMsg';
+          emptyMsg.className = 'text-muted';
+          emptyMsg.textContent = 'Tidak ada event pada kategori ini';
+          grid.after(emptyMsg);
+        }
+        emptyMsg.style.display = '';
+      } else if (emptyMsg) {
+        emptyMsg.style.display = 'none';
+      }
+    }
   </script>
 </body>
 </html>
